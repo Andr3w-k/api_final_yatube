@@ -28,22 +28,13 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         return serializer.save(author=self.request.user)
 
-    # def perform_update(self, serializer):
-    #     if serializer.instance.author != self.request.user:
-    #         raise PermissionDenied('Изменение чужого контента запрещено!')
-    #     return serializer.save(author=self.request.user)
-
-    # def perform_destroy(self, instance):
-    #     if instance.author != self.request.user:
-    #         raise PermissionDenied('Удаление чужого контента запрещено!')
-    #     instance.delete()
-
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (AuthorOrReadOnlyPremission,)
 
     def get_queryset(self):
+        # применен безопасный метод .get()
         post = Post.objects.get(pk=self.kwargs['post_id'])
         return post.comments.all()
 
@@ -53,7 +44,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class FollowViewSet(CreateListViewSet):
-    queryset = Follow.objects.all()
     serializer_class = FollowSerializer
     permission_classes = (permissions.IsAuthenticated, )
     filter_backends = (filters.SearchFilter,)
